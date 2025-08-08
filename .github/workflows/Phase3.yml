@@ -1,4 +1,4 @@
-name: Build Sherin APK
+name: Build Kivy APK (Debug)
 
 on:
   workflow_dispatch:
@@ -7,19 +7,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Install dependencies
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: System deps
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-11-jdk build-essential
-          pip3 install buildozer
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-setuptools python3-dev \
+                                  zip unzip git libglib2.0-0 libsdl2-dev \
+                                  libavformat-dev libavcodec-dev libavdevice-dev \
+                                  libavutil-dev libswscale-dev libswresample-dev
+          pip install --upgrade pip
+          pip install buildozer cython
 
-      - name: Build APK
-        run: buildozer android debug
+      - name: Build debug APK
+        run: |
+          buildozer android debug
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sherin-apk
+          name: Sherin-debug-apk
           path: bin/*.apk
